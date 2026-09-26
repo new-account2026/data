@@ -1,0 +1,194 @@
+server:
+  port: 8080
+spring:
+  elasticsearch:
+    rest:
+      uris: ${ELASTICSEARCH_URIS:localhost:9200}
+      #uris: localhost:9200
+      connection-timeout: 1s
+      read-timeout: 30s
+      username: elastic
+      password: ${ELASTICSEARCH_PASSWORD:}
+  application:
+    name: cssci
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      #url: ${DATABASE_URL:}
+      url: ${DATABASE_URL:}
+      username: root
+      password: ${DATABASE_PASSWORD:}
+      min-idle: 5       # 最小空闲连接数
+      max-active: 151   # 最大活跃连接数
+      initial-size: 5   # 初始连接数
+      min-evictable-idle-time-millis: 300000  # 最小驱逐空闲时间(毫秒)
+      validation-query: SELECT 1              # 验证查询
+      test-while-idle: true                   # 空闲时检测
+      test-on-borrow: false                   # 借用时检测
+      test-on-return: true                    # 归还时检测
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+#  security:
+#    user:
+#      name: "admin"
+#      password: "123"
+#      roles: "ADMIN"
+# application.properties
+  web:
+    resources:
+      static-locations: classpath:/resources/,classpath:/static/,file:/assets/
+#  main:
+#    allow-bean-definition-overriding: true # 允许覆盖重复的bean
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: 6379            # Redis服务器监听的端口
+    database: 0           # Redis支持多个数据库（默认16个），每个数据库都由编号索引。这里设置为0，意味着将使用Redis的默认数据库
+    password: ${REDIS_PASSWORD:}
+    timeout: 5000        # 连接到Redis服务器的超时时间，单位是毫秒 1000 * 5
+    lettuce:
+      pool:
+        max-active: 20 # 连接池中最大连接数
+        max-wait: -1   # 最大等待时间限制。-1，意味着没有最大等待时间限制，客户端将无限期地等待一个可用连接
+        max-idle: 5    # 连接池中的最大空闲连接数
+        min-idle: 0    # 连接池中的最小空闲连接数
+#  jackson:
+#    serialization:
+#      FAIL_ON_EMPTY_BEANS: false
+  mail:
+    host: smtp.qq.com       # 邮件服务器地址
+    port: 587               # 端口号，通常为587（TLS）或465（SSL）
+      username: ${MAIL_USERNAME:}
+      password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true  # 是否需要身份验证
+          starttls:
+            enable: true  # 是否启用TLS
+            required: true
+          timeout: 10000  # 超时时间
+
+logging:
+  level:
+    org:
+      springframework:
+        security: INFO
+#    com:
+#      nju:
+#        cssci:
+#          config:
+#            filter: DEBUG
+#    # 全局日志输出
+#    root: DEBUG
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: ASSIGN_ID
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.nju.cssci.entity.entity
+
+
+picture:
+    url: ${PICTURE_SERVICE_URL:}
+
+files:
+  path:
+    verify: "/files/verify/"
+    verifyType: pdf,docx,doc
+
+hostname:
+  main-url: ${MAIN_SERVICE_URL:}
+
+deepseek:
+  api:
+    url: ${DEEPSEEK_API_URL:https://api.deepseek.com/chat/completions}
+    key: ${DEEPSEEK_API_KEY:}
+  model: "deepseek-v4-flash"
+  timeout:
+    connect-ms: 50000
+    read-ms: 50000
+  chat:
+    use-search-default: true
+    decision-enabled: true
+    route-decision:
+      retry-times: 5
+      retry-backoff-ms: 500
+      max-tokens: 3000
+    audit-decision:
+      max-tokens: 3000
+      adaptive-max-tokens:
+        version: evidence-audit-adaptive-token-v1
+        enabled: true
+        increment: 3000
+        ceiling: 15000
+        saturation-ratio: 0.99
+    threshold:
+      ask: 0.55
+      coverage-db: 0.60
+    web-max-results: 10
+    too-many-hits-threshold: 100
+    retry-times: 5
+    retry-backoff-ms: 500
+
+search:
+  max-results: 50
+  timeout:
+    connect-ms: 5000
+    read-ms: 10000
+  tavily:
+    endpoint: ${TAVILY_ENDPOINT:https://api.tavily.com/search}
+    api-key: ${TAVILY_API_KEY:}
+    search-depth: "basic"
+    topic: "general"
+
+recommend:
+  enabled: false
+    base-url: ${RECOMMEND_SERVICE_URL:}
+  timeout-ms: 800
+  fallback: "legacy_sort"
+  experiment-key: "recommend_v1"
+  exposure-log-enabled: true
+
+behavior:
+  write-enabled: true
+
+event:
+  collector:
+    base-url: ${RELATED_SERVICE_URL:}
+
+abtest:
+    base-url: ${INFLUENCE_SERVICE_URL:}
+
+# Experiment instrumentation only. Disabled by default and must not affect
+# frozen routing, retrieval, generation, audit, paging, session, or fallback logic.
+experiment:
+  enabled: false
+  output-dir: ./experiment-output
+  system-version: "cssci-experiment-infrastructure-v1"
+  algorithm-baseline-commit: "e6b0c9b3b7f124d40d598ff8a7ef33c0b754eb7f"
+  infrastructure-version:
+  prompt-version: "prompts-v1"
+  router-prompt-version: "router-v1"
+  answer-prompt-version: "answer-v1"
+  audit-prompt-version: "audit-v1"
+  parser-version: "parser-v1"
+  database-snapshot:
+  database-cutoff:
+  save-full-evidence: false
+  model-provider: "DeepSeek"
+  application-environment:
+  runner:
+    enabled: false
+    multi-turn-resume-policy: RESTART_EPISODE
+  pricing:
+    enabled: false
+    version:
+    date:
+    input-cost-per-million-tokens:
+    output-cost-per-million-tokens:
